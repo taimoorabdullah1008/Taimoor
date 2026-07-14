@@ -75,21 +75,47 @@ meeting action item, and a data-analysis deliverable all show up in one place
 3. Build summarization prompt/pipeline tuned for graduate-level policy readings (structure: thesis, key evidence, methodology, critiques).
 4. Build a "questions to ask in class" generator — prompted to surface genuine ambiguities/critiques, not generic questions.
 5. Add per-course/per-week organization so summaries map to the syllabus.
-6. (Later) Add text-to-speech for voice-note summaries; evaluate short-video generation tools.
+6. Add assignment support, scoped to: outlining, drafting assistance,
+   structuring, and checking Taimoor's own work — not producing
+   submittable graded work wholesale. See Guardrails (Section 7).
+7. (Later) Add text-to-speech for voice-note summaries; evaluate short-video generation tools.
 
 ### Module B — Task & Calendar Sync
-1. Choose calendar backend (Google Calendar API is the likely default — confirm which calendar Taimoor actually uses).
-2. Choose/confirm a task store (lightweight DB, or an existing tool like Notion/Todoist via API — see Open Questions).
-3. Build a unified task schema: `{ source (academic/professional), title, due_date, status, origin_module }`.
-4. Build calendar sync: tasks with due dates create/update calendar events; completed tasks are removed/marked.
-5. Build a daily/weekly digest view (what's due, what's overdue, what's upcoming).
+1. Sync across all three calendars in use: personal Gmail (Google Calendar
+   API), Vanderbilt Outlook (Microsoft Graph API), and the Taleemabad email
+   calendar (Google Calendar API or Microsoft Graph, depending on whether
+   Taleemabad runs Google Workspace or Microsoft 365 — confirm which).
+2. Route events to the right calendar by source: academic → Vanderbilt
+   Outlook, Taleemabad tasks → Taleemabad calendar, personal → Gmail. Build
+   a merged read-view across all three so nothing gets missed, even though
+   writes go to separate calendars.
+3. Task store: starting recommendation is a lightweight custom store
+   (SQLite) rather than an existing tool — it's the simplest for the agent
+   to read/write directly and avoids being locked into a third-party API's
+   rate limits/schema this early. Trade-off: no ready-made UI, so the
+   digest view (step 5) is the interface for now. This can be swapped for
+   Notion/Todoist later if a visual UI becomes more valuable than direct
+   control — revisit after the MVP is in daily use.
+4. Build a unified task schema: `{ source (personal/academic/Taleemabad/Nashville Peer), title, due_date, status, origin_module }`.
+5. Build calendar sync: tasks with due dates create/update events on the
+   correct calendar; completed tasks are removed/marked.
+6. Build a daily/weekly digest view pulling across all three calendars
+   (what's due, what's overdue, what's upcoming).
 
 ### Module C — Meeting Notes & Action Items
-1. Confirm meeting platform(s) used at Nashville Peer / Taleemabad (Zoom, Teams, Meet, in-person).
-2. Evaluate transcription approach: platform-native transcripts vs. a bot/recorder vs. manual audio upload.
-3. **Flag before building:** get explicit consent from meeting hosts/organizations before recording or transcribing any professional meeting — this is a workplace confidentiality issue, not just a technical one.
-4. Build a note-summarization pipeline: key decisions, open questions, action items.
-5. Push extracted action items into Module B's task store automatically.
+1. Platforms confirmed: Microsoft Teams and Zoom, both used across Nashville
+   Peer / Taleemabad. Build against both platforms' native transcription
+   (Teams transcripts, Zoom cloud recordings/transcripts) rather than a
+   separate recording bot, to keep this inside each platform's own
+   consent/data-handling flow.
+2. Build a note-summarization pipeline: key decisions, open questions, action items.
+3. Push extracted action items into Module B's task store automatically.
+4. **Status:** build and test this module using sample/mock transcripts
+   first. Taimoor will confirm organizational consent for recording/
+   transcription with Nashville Peer and Taleemabad separately — do not
+   connect this module to real, live meetings until that's confirmed.
+   Treat this as a hard gate before Phase 3 deployment, not before Phase 3
+   development.
 
 ### Module D — Document Synthesis (Professional)
 1. Reuse Module A's ingestion/summarization pipeline as the base.
@@ -100,12 +126,19 @@ meeting action item, and a data-analysis deliverable all show up in one place
 1. Define standard intake: raw data format (CSV/Excel/SQL/survey exports).
 2. Build a cleaning step: missing values, type coercion, deduplication, validation checks.
 3. Build a manipulation layer: joins, aggregations, reshaping (pandas or equivalent).
-4. Build an analysis layer: descriptive stats first; add whatever inferential/MEL-specific methods (e.g., pre/post comparisons, indicator tracking) are actually used in coursework or work.
+4. Build an analysis layer: descriptive stats as the primary, everyday use
+   case (this is what gets used most); regression analysis (linear/logistic
+   as appropriate) as the upper bound of complexity — no need to build
+   beyond that for now.
 5. Standardize output: a reproducible notebook/script per analysis + a plain-language summary of findings.
 6. Version control every analysis (this doubles as portfolio evidence per CLAUDE.md priority #2).
 
 ### Module F — LinkedIn Presence Manager
-1. Note: LinkedIn does not offer a general public API for automated posting — confirm what's actually feasible (manual-assist drafting vs. an approved LinkedIn API app) before assuming automation.
+1. **Starting mode: manual-assist only, no API automation.** LinkedIn's
+   public API requires a formal partner application and approval process
+   that isn't set up — rather than take that on now, this module drafts
+   posts and Taimoor copies/pastes and publishes them himself. This can be
+   revisited later if LinkedIn API access becomes worth pursuing.
 2. Build a draft generator: turns real completed work (from Modules A/D/E) into short LinkedIn update drafts.
 3. Human-in-the-loop review step — Taimoor approves/edits before anything posts, consistent with the "never fabricate" rule.
 4. Track a cadence (e.g., one update every 1-2 weeks) tied to actual milestones, not filler content.
@@ -132,14 +165,18 @@ meeting action item, and a data-analysis deliverable all show up in one place
 
 ## 7. Guardrails (non-negotiable)
 
-- **Academic integrity:** the agent assists with understanding readings and
-  organizing assignments — it does not complete graded work on Taimoor's
-  behalf. Confirm Vanderbilt's/Peabody's academic integrity and AI-use
-  policy before deciding what "do the assignments" can mean in practice.
+- **Academic integrity:** confirmed scope is outlining, drafting assistance,
+  structuring, and checking Taimoor's own work — the agent does not produce
+  submittable graded work wholesale. Still confirm this scope is consistent
+  with Vanderbilt's/Peabody's academic integrity and AI-use policy before
+  first real use.
 - **Confidentiality:** professional meeting notes and internal documents from
   Nashville Peer and Taleemabad must not be stored, processed, or shared in
-  ways that violate those organizations' confidentiality expectations —
-  get explicit consent before recording meetings.
+  ways that violate those organizations' confidentiality expectations.
+  Module C is being built now against Teams/Zoom native transcription, but
+  will not touch real, live meetings until Taimoor confirms consent with
+  both organizations — treat that confirmation as a hard gate before
+  deployment, independent of when development finishes.
 - **No fabrication:** LinkedIn updates and blog drafts must only describe
   real work — consistent with CLAUDE.md's "never fabricate" rule.
 
@@ -147,15 +184,20 @@ meeting action item, and a data-analysis deliverable all show up in one place
 
 - **Agent/orchestration:** Claude (via API or Claude Agent SDK) as the
   reasoning layer.
-- **Calendar:** Google Calendar API (pending confirmation of which calendar
-  is actually used).
-- **Task store:** lightweight DB (SQLite/Postgres) or an existing tool via
-  API (Notion/Todoist) — trade-off: a custom DB gives full control, an
-  existing tool gives a UI for free. Needs a decision.
-- **Data analysis:** Python (pandas, matplotlib/plotly, Jupyter notebooks).
+- **Calendar:** Google Calendar API for personal Gmail; Microsoft Graph API
+  for Vanderbilt Outlook; Google Calendar API or Microsoft Graph for
+  Taleemabad, depending on which platform Taleemabad runs (still open —
+  see Section 11).
+- **Task store:** starting with a lightweight custom DB (SQLite) — see
+  Module B, Section 5, for the reasoning. Revisit if a UI-first tool
+  (Notion/Todoist) turns out to matter more once the MVP is in daily use.
+- **Data analysis:** Python (pandas, matplotlib/plotly, Jupyter notebooks),
+  with `statsmodels`/`scikit-learn` for the regression-analysis ceiling.
 - **Document ingestion:** PDF/text extraction library + OCR fallback.
-- **Meeting transcription:** platform-native transcripts where available,
-  to avoid separate recording-consent complexity.
+- **Meeting transcription:** Teams and Zoom native transcripts (both
+  platforms are in use), gated on organizational consent before live use.
+- **LinkedIn:** no API integration for now — manual-assist drafting only
+  (see Module F).
 
 ## 9. Phased Roadmap (aligned to July 2026 – May 2027 window)
 
@@ -184,15 +226,33 @@ meeting action item, and a data-analysis deliverable all show up in one place
 - Cadence and quality of LinkedIn updates and published pieces.
 - Zero academic-integrity or confidentiality incidents.
 
-## 11. Open Questions (need Taimoor's input before building)
+## 11. Open Questions
 
-1. Which calendar does Taimoor actually use day-to-day (Google/Outlook/other)?
-2. Preference for task store: custom build vs. existing tool (Notion, Todoist, etc.)?
-3. What does "do the assignments" mean in practice, given academic integrity
-   rules — outlining/drafting support, or something narrower?
-4. What meeting platform(s) are used at Nashville Peer and Taleemabad, and
-   has consent for recording/transcription been discussed with those teams?
-5. Is there existing LinkedIn API access, or should Module F start as a
-   manual-assist drafting tool only?
-6. Which specific data-analysis methods come up most in coursework/work
-   right now, to prioritize Module E's build order?
+Resolved:
+
+1. ~~Which calendar?~~ → All three: personal Gmail, Vanderbilt Outlook, and
+   the Taleemabad email calendar.
+2. ~~Task store?~~ → Starting with a lightweight custom store (SQLite);
+   revisit later if a UI-first tool becomes more valuable (Section 5/8).
+3. ~~What does "do the assignments" mean?~~ → Outlining, drafting
+   assistance, structuring, and checking Taimoor's own work.
+4. ~~Meeting platforms/consent?~~ → Teams and Zoom. Build now against
+   sample data; Taimoor will confirm organizational consent before this
+   touches real meetings.
+5. ~~LinkedIn API access?~~ → Not set up / not something Taimoor is set up
+   to configure right now — Module F starts as manual-assist drafting only,
+   no API integration.
+6. ~~Priority data-analysis methods?~~ → Descriptive statistics primarily,
+   with regression analysis as the upper bound of complexity needed.
+
+Still open, needed before Phase 0 is fully closed out:
+
+1. Does Taleemabad run Google Workspace or Microsoft 365 for its email/
+   calendar? This determines which API (Google Calendar vs. Microsoft
+   Graph) Module B uses for that calendar.
+2. Confirmation from Vanderbilt/Peabody's academic integrity policy that
+   the outlining/drafting/structuring/checking scope for Module A is
+   within bounds.
+3. Organizational consent from Nashville Peer and Taleemabad for meeting
+   recording/transcription (Module C) — required before live deployment,
+   not before development.
