@@ -83,8 +83,7 @@ meeting action item, and a data-analysis deliverable all show up in one place
 ### Module B — Task & Calendar Sync
 1. Sync across all three calendars in use: personal Gmail (Google Calendar
    API), Vanderbilt Outlook (Microsoft Graph API), and the Taleemabad email
-   calendar (Google Calendar API or Microsoft Graph, depending on whether
-   Taleemabad runs Google Workspace or Microsoft 365 — confirm which).
+   calendar (Google Calendar API — Taleemabad runs Google Workspace).
 2. Route events to the right calendar by source: academic → Vanderbilt
    Outlook, Taleemabad tasks → Taleemabad calendar, personal → Gmail. Build
    a merged read-view across all three so nothing gets missed, even though
@@ -167,9 +166,8 @@ meeting action item, and a data-analysis deliverable all show up in one place
 
 - **Academic integrity:** confirmed scope is outlining, drafting assistance,
   structuring, and checking Taimoor's own work — the agent does not produce
-  submittable graded work wholesale. Still confirm this scope is consistent
-  with Vanderbilt's/Peabody's academic integrity and AI-use policy before
-  first real use.
+  submittable graded work wholesale. This scope has been confirmed as
+  consistent with Vanderbilt/Peabody's academic integrity and AI-use policy.
 - **Confidentiality:** professional meeting notes and internal documents from
   Nashville Peer and Taleemabad must not be stored, processed, or shared in
   ways that violate those organizations' confidentiality expectations.
@@ -184,10 +182,8 @@ meeting action item, and a data-analysis deliverable all show up in one place
 
 - **Agent/orchestration:** Claude (via API or Claude Agent SDK) as the
   reasoning layer.
-- **Calendar:** Google Calendar API for personal Gmail; Microsoft Graph API
-  for Vanderbilt Outlook; Google Calendar API or Microsoft Graph for
-  Taleemabad, depending on which platform Taleemabad runs (still open —
-  see Section 11).
+- **Calendar:** Google Calendar API for personal Gmail and Taleemabad
+  (Google Workspace); Microsoft Graph API for Vanderbilt Outlook.
 - **Task store:** starting with a lightweight custom DB (SQLite) — see
   Module B, Section 5, for the reasoning. Revisit if a UI-first tool
   (Notion/Todoist) turns out to matter more once the MVP is in daily use.
@@ -245,14 +241,15 @@ Resolved:
 6. ~~Priority data-analysis methods?~~ → Descriptive statistics primarily,
    with regression analysis as the upper bound of complexity needed.
 
-Still open, needed before Phase 0 is fully closed out:
+7. ~~Does Taleemabad run Google Workspace or Microsoft 365?~~ → Google
+   Workspace — Module B uses the Google Calendar API for both personal
+   Gmail and Taleemabad, and Microsoft Graph API for Vanderbilt Outlook.
+8. ~~Is the Module A assignment-support scope (outlining/drafting/
+   structuring/checking) within Vanderbilt/Peabody's academic integrity
+   and AI-use policy?~~ → Confirmed within bounds.
 
-1. Does Taleemabad run Google Workspace or Microsoft 365 for its email/
-   calendar? This determines which API (Google Calendar vs. Microsoft
-   Graph) Module B uses for that calendar.
-2. Confirmation from Vanderbilt/Peabody's academic integrity policy that
-   the outlining/drafting/structuring/checking scope for Module A is
-   within bounds.
-3. Organizational consent from Nashville Peer and Taleemabad for meeting
+Still open:
+
+1. Organizational consent from Nashville Peer and Taleemabad for meeting
    recording/transcription (Module C) — required before live deployment,
    not before development.
